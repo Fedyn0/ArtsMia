@@ -5,6 +5,8 @@ class View(ft.UserControl):
     def __init__(self, page: ft.Page):
         super().__init__()
         # page stuff
+        self._btnCerca = None
+        self._ddLun = None
         self._page = page
         self._page.title = "TdP Exercise on MIA Art database"
         self._page.horizontal_alignment = 'CENTER'
@@ -36,9 +38,19 @@ class View(ft.UserControl):
                                                   width=200,
                                                   disabled = True)
 
-        self._page.controls.append(ft.Row([self._btnAnalizzaOggetti, self._txtIdOggetto, self._btnCompConnessa],
+        self._page.controls.append(ft.Row([ft.Container(self._btnAnalizzaOggetti, width=250),
+                                           ft.Container(self._txtIdOggetto, width=250),
+                                           ft.Container(self._btnCompConnessa, width=250)],
                                           alignment=ft.MainAxisAlignment.CENTER))
-
+        self._ddLun = ft.Dropdown(label = "Lunghezza", disabled = True)
+        self._btnCerca = ft.ElevatedButton(text="Cerca Oggetti", on_click=self._controller.handleCerca, disabled = True,)
+        
+        row2 = ft.Row([ft.Container(None, width=250),
+                       ft.Container(self._ddLun, width=250),
+                       ft.Container(self._btnCerca, width=250)],
+                       alignment=ft.MainAxisAlignment.CENTER)
+        self._page.controls.append(row2)
+        
         # List View where the reply is printed
         self.txt_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
         self._page.controls.append(self.txt_result)

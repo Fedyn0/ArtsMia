@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 from database.DAO import DAO
 
@@ -9,6 +11,50 @@ class Model:
         self._idMapAO = {}
         for n in self._nodes:
             self._idMapAO[n.object_id] = n
+
+        self._bestPath = []
+        self._optCost = 0
+
+    def getOptPath(self, source, lun):
+
+        """Prendera come argomenti il punto di partenza e la lunghezza
+        chiamera un metodo ricorsivo che prova ad aggiungere nodi fino
+        ad arrivare alla lunghezza di lun"""
+
+        self._bestPath = []
+        self._optCost = 0
+
+        parziale = [source]
+
+        self._ricorsione(parziale, lun)
+
+        return self._bestPath, self._optCost
+
+    def _ricorsione(self, parziale, lun):
+        if len(parziale) == lun:
+            # condizione di terminazione, allora parziale è lunga esattamente lun
+            # per cui verifico che questo parziale sia meglio del mio best (condizione di ottimalita),
+            # ed in ogni caso esco.
+
+            if self._costoPath(parziale) > self._optCost:
+                self._optCost = self._costoPath(parziale)
+                self._bestPath = copy.deepcopy(parziale)
+            return
+
+        # se arrivo qui, posso ancora aggiungere nodi
+
+        for n in self._graph.neighbors(parziale[-1]):
+            if parziale[-1].classification == n.classification:
+                parziale.append(n)
+                self._ricorsione(parziale, lun)
+                parziale.pop() # backtracking
+
+
+    def _costoPath(self, path):
+        costo = 0
+        for i in range(0, len(path) - 1):
+            costo += self._graph[path[i]][path[i + 1]]["weight"]
+        return costo
 
 
     def getInfoCompConnessa(self, id_oggetto):
@@ -69,3 +115,6 @@ class Model:
 
     def getNumEdges(self):
         return len(self._graph.edges)
+
+    def getNodeFromId(self, id_oggetto):
+        return self._idMapAO[id_oggetto]
